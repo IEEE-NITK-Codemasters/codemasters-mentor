@@ -1,6 +1,8 @@
-import { pgTable, serial, varchar, boolean, text, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, serial, varchar, boolean, text, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
+export const statusEnum = pgEnum("statusEnum", ["accepted", "rejected"]); // add more status as needed
+
+export const Users = pgTable("Users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
@@ -8,33 +10,34 @@ export const users = pgTable("users", {
 });
 
 
-export const contests = pgTable("contests", {
+export const Contests = pgTable("Contests", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   public: boolean("public").notNull(),
 });
 
 
-export const questions = pgTable("questions", {
+export const Questions = pgTable("Questions", {
   id: serial("id").primaryKey(),
   description: text("description").notNull(),
   testcase: text("testcase").notNull(),
   expected_output: text("expected_output").notNull(),
   contestId: integer("contest_id")
-    .references(() => contests.id, { onDelete: "cascade" }),
+    .references(() => Contests.id, { onDelete: "cascade" }),
 });
 
 
-export const submissions = pgTable("submissions", {
+export const Submissions = pgTable("Submissions", {
+  id: serial("id").primaryKey(),
   userId: integer("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => Users.id, { onDelete: "cascade" }),
   contestId: integer("contest_id")
-    .references(() => contests.id, { onDelete: "cascade" }),
+    .references(() => Contests.id, { onDelete: "cascade" }),
   quesId: integer("ques_id")
     .notNull()
-    .references(() => questions.id, { onDelete: "cascade" }),
-  status: varchar("status", { length: 50 }).notNull(), // e.g., "accepted", "rejected"
+    .references(() => Questions.id, { onDelete: "cascade" }),
+  status: statusEnum("statusEnum"),
   output: text("output").notNull(),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
