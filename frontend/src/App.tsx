@@ -1,11 +1,9 @@
 import React from "react";
-import { Button } from "@/components/ui/button";
+import CodeEditor from "@/pages/CodeEditor";
 
 const App: React.FC = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Button>Click Me</Button>
-    </div>
+    <CodeEditor />
   );
 };
 
