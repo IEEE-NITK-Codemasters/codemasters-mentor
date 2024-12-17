@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/resizable';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Code2, Play, Send, History } from 'lucide-react';
+import { Play, Send, History } from 'lucide-react';
 import QuestionPanel from '@/components/codeeditor/QuestionPanel';
 import type { Question } from '@/types/question';
 import { Difficulty } from '@/enums/difficultyEnum';
@@ -82,7 +82,7 @@ export default function CodeEditor() {
 
               <ResizablePanel defaultSize={40}>
                 {/* Input Panel */}
-                <div className="h-full grid grid-cols-2 divide-x">
+                <div className="h-full grid grid-cols-2 divide-x dark:text-white">
                   <div className="p-4">
                     <div className="font-medium mb-2">Input</div>
                     <Textarea
@@ -94,7 +94,7 @@ export default function CodeEditor() {
                   </div>
 
                   {/* Output Panel */}
-                  <div className="p-4">
+                  <div className="p-4 dark:text-white">
                     <div className="font-medium mb-2">Output</div>
                     <Textarea
                       value={output}
