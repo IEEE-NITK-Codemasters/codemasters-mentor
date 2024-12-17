@@ -12,6 +12,7 @@ import type { Question } from '@/types/question';
 import { Difficulty } from '@/enums/difficultyEnum';
 import { supportedLangs } from '@/lib/constants/supportedLangs';
 import SelectLang from '@/components/codeeditor/SelectLanguage';
+import MonacoEditor from '@/components/codeeditor/MonacoEditor';
 
 const sampleQuestion: Question = {
   title: "Two Sum",
@@ -45,7 +46,7 @@ export default function CodeEditor() {
           <QuestionPanel question={sampleQuestion} />
         </ResizablePanel>
 
-        <ResizableHandle />
+        <ResizableHandle withHandle/>
 
         {/* Code Editor Panel */}
         <ResizablePanel defaultSize={60}>
@@ -71,26 +72,16 @@ export default function CodeEditor() {
               </Button>
             </div>
 
-            {/* Code Editor and I/O */}
+            {/* Code Editor */}
             <ResizablePanelGroup direction="vertical">
               <ResizablePanel defaultSize={60}>
-                <div className="h-full p-4 bg-muted/30">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Code2 className="w-4 h-4" />
-                    <span className="font-medium">Code Editor</span>
-                  </div>
-                  <Textarea
-                    value={code}
-                    onChange={(e) => setCode(e.target.value)}
-                    className="h-[calc(100%-32px)] font-mono"
-                    placeholder="Write your code here..."
-                  />
-                </div>
+                <MonacoEditor code={code} language={language} setCode={setCode} />
               </ResizablePanel>
 
-              <ResizableHandle />
+              <ResizableHandle withHandle/>
 
               <ResizablePanel defaultSize={40}>
+                {/* Input Panel */}
                 <div className="h-full grid grid-cols-2 divide-x">
                   <div className="p-4">
                     <div className="font-medium mb-2">Input</div>
@@ -101,6 +92,8 @@ export default function CodeEditor() {
                       placeholder="Enter input..."
                     />
                   </div>
+
+                  {/* Output Panel */}
                   <div className="p-4">
                     <div className="font-medium mb-2">Output</div>
                     <Textarea
