@@ -4,7 +4,7 @@ type File = {
     encoding?: "base64" | "hex" | "utf8"; // Optional, defaults to utf8
 };
 
-export type QueueItem = {
+export type requestBody = {
     language: string;
     version: string;
     files: File[];
