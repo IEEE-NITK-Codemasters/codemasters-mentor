@@ -15,5 +15,6 @@ export type QueueItem = {
     compile_memory_limit?: number; // Optional, defaults to maximum or -1 (no limit)
     run_memory_limit?: number; // Optional, defaults to maximum or -1 (no limit)
     userId?: string;
+    questionId?: string;
 };
 

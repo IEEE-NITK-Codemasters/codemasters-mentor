@@ -1,24 +1,21 @@
-import { createClient } from 'redis'
-import {Sema} from 'async-sema' 
-import { handleTaskAndRelease } from "./helpers/handleTaskAndRelease.ts"
+import { Worker } from 'bullmq';
+import type { Job } from "bullmq";
+import IORedis from 'ioredis'
+import { handleTask } from "./helpers/handleTask.ts";
 
-const redis = createClient()
-const maxActiveReq = parseInt(Deno.env.get("MAX_ACTIVE_REQ") || "5")
-const sema = new Sema(maxActiveReq)
-await redis.connect()
+const redis = new IORedis.default({maxRetriesPerRequest:null});
+export type RedisType = typeof redis
 
-async function startServer() {
-  while(true) {
+const worker = new Worker(
+  'run-queue',
+  async (job:Job) => {
+    await handleTask(redis,job.data);
+  },
+  { connection: redis,
+    concurrency: parseInt(Deno.env.get("MAX_ACTIVE_REQS") || "5")
+   }
+);
 
-    /*
-    * Acquire a semaphore before pulling a task from the queue
-    * Release the semaphore after the task is processed
-    */
-
-    await sema.acquire();
-    handleTaskAndRelease(redis,sema);
-  }
-}
-
-startServer()
-
+worker.on('completed', job => {
+  console.log(`Job ${job.id} has been completed`);
+});
