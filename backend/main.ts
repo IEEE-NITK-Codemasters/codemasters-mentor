@@ -1,27 +1,21 @@
 // @deno-types="npm:@types/express@4"
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import { RunRequestBody } from "./types/RunRequestBody.ts"
-import { createClient } from 'redis'
+import {Queue} from 'bullmq'
+import IORedis from 'ioredis'
 
-const redis = createClient()
+const redis = new IORedis.default();
 const app = express()
 const port = Number(Deno.env.get("PORT")) || 3000;
-
-await redis.connect();
+const queue = new Queue('run-queue', {connection: redis})
 
 app.use(express.json());
 
 app.post("/run", async (req: Request, res: Response) => {
-    const userId: string = "jflaj";
-    let RequestBody: RunRequestBody = req.body;
-
-    RequestBody['userId'] = userId;
-    await redis.LPUSH( 'mylist', JSON.stringify(RequestBody) );
-
-    console.log(RequestBody)
-    res.status(200).send(userId);
+    const reqBody: RunRequestBody = req.body
+    await queue.add('run-task',reqBody)
+    res.sendStatus(200);
 });
-
 
 
 app.listen(port, () => {
