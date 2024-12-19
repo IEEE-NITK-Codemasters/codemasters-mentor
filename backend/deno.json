@@ -10,8 +10,7 @@
     "drizzle-orm": "npm:drizzle-orm@^0.38.1",
     "express": "npm:express@4.18.2",
     "ioredis": "npm:ioredis@^5.4.1",
-    "pg": "npm:pg@^8.13.1",
-    "redis": "npm:redis@^4.7.0"
+    "pg": "npm:pg@^8.13.1"
   },
   "nodeModulesDir":"auto"
 }
