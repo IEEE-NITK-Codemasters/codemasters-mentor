@@ -1,13 +1,31 @@
-import { db } from "./db/db.ts";
-import {users} from "./db/schema.ts"
+// @deno-types="npm:@types/express@4"
+import express, { NextFunction, Request, Response } from "express";
+import { RunRequestBody } from "./types/RunRequestBody.ts"
+import { createClient } from 'redis'
 
-async function insertUser() {
-    await db.insert(users).values({
-        name: "Alice Johnson",
-        email: "alice.johnson@example.com",
-        password: "securepassword",
-    });
-    console.log("User inserted successfully!");
-}
+const redis = createClient()
+const app = express()
+const port = Number(Deno.env.get("PORT")) || 3000;
 
-insertUser().catch(console.error);
+await redis.connect();
+
+app.use(express.json());
+
+app.post("/run", async (req: Request, res: Response) => {
+    const userId: string = "jflaj";
+    let RequestBody: RunRequestBody = req.body;
+
+    RequestBody['userId'] = userId;
+    await redis.LPUSH( 'mylist', JSON.stringify(RequestBody) );
+
+    console.log(RequestBody)
+    res.status(200).send(userId);
+});
+
+
+
+app.listen(port, () => {
+    console.log(`Listening on ${port} ...`);
+});
+
+
