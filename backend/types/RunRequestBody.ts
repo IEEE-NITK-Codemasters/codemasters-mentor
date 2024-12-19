@@ -4,7 +4,7 @@ type File = {
     encoding?: "base64" | "hex" | "utf8"; // Optional, defaults to utf8
 };
 
-export type requestBody = {
+export type RunRequestBody = {
     language: string;
     version: string;
     files: File[];
