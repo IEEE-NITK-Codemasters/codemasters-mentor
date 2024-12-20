@@ -7,6 +7,7 @@
     "npm:@types/node@*": "22.5.4",
     "npm:@types/pg@^8.11.10": "8.11.10",
     "npm:bullmq@^5.34.3": "5.34.3",
+    "npm:cors@^2.8.5": "2.8.5",
     "npm:drizzle-kit@*": "0.30.1_esbuild@0.19.12",
     "npm:drizzle-kit@~0.30.1": "0.30.1_esbuild@0.19.12",
     "npm:drizzle-orm@~0.38.1": "0.38.1",
@@ -350,6 +351,13 @@
     "cookie@0.5.0": {
       "integrity": "sha512-YZ3GUyn/o8gfKJlnlX7g7xq4gyO6OSuhGPKaaGssGB2qgDUS0gPgtTvoyZLTt9Ab6dC4hfc9dV5arkvc/OCmrw=="
     },
+    "cors@2.8.5": {
+      "integrity": "sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==",
+      "dependencies": [
+        "object-assign",
+        "vary"
+      ]
+    },
     "cron-parser@4.9.0": {
       "integrity": "sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q==",
       "dependencies": [
@@ -684,6 +692,9 @@
         "detect-libc"
       ]
     },
+    "object-assign@4.1.1": {
+      "integrity": "sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg=="
+    },
     "object-inspect@1.13.3": {
       "integrity": "sha512-kDCGIbxkDSXE3euJZZXzc6to7fCrKHNI/hSRQnRuQ+BWjFNzZwiFF8fj/6o2t2G9/jTj8PSIYTfCLelLZEeRpA=="
     },
@@ -947,6 +958,7 @@
       "jsr:@std/assert@1",
       "npm:@types/pg@^8.11.10",
       "npm:bullmq@^5.34.3",
+      "npm:cors@^2.8.5",
       "npm:drizzle-kit@~0.30.1",
       "npm:drizzle-orm@~0.38.1",
       "npm:express@4.18.2",

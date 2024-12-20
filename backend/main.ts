@@ -2,6 +2,7 @@
 import express, { Request, Response } from "express";
 import { RunRequestBody } from "./types/RunRequestBody.ts"
 import { RunResponseBody } from "./types/RunResponseBody.ts";
+import cors from 'cors'
 import {Queue} from 'bullmq'
 import IORedis from 'ioredis'
 
@@ -11,14 +12,15 @@ const port = Number(Deno.env.get("PORT")) || 3000;
 const queue = new Queue('run-queue', {connection: redis})
 
 app.use(express.json());
+app.use(cors())
 
-app.post("/run", async (req: Request, res: Response) => {
+app.post("/question/run", async (req: Request, res: Response) => {
     const reqBody: RunRequestBody = req.body
     await queue.add('run-task',reqBody)
     res.sendStatus(200);
 });
 
-app.get("/run", async (req: Request, res: Response) => {
+app.get("/question/run", async (req: Request, res: Response) => {
     const userId = req.query.userId as string
     const questionId = req.query.questionId as string
     const key = 'run' + userId + questionId

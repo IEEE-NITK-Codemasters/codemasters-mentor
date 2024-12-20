@@ -4,10 +4,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface IProps {
     question: {
-        title: string;
-        difficulty: Difficulty;
-        topics: string[];
-        description: string;
+      id: number;
+      title: string;
+      difficulty: Difficulty;
+      topics?: string[];
+      description: string;
     }
 }
 
@@ -25,7 +26,7 @@ export default function QuestionPanel({question}: IProps) {
               </Badge>
             </div>
             <div className="flex gap-2 mb-6">
-              {question.topics.map((topic) => (
+              {question.topics?.map((topic) => (
                 <Badge key={topic} variant="outline">
                   {topic}
                 </Badge>
