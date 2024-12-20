@@ -12,7 +12,7 @@ const worker = new Worker(
     await handleTask(redis,job.data);
   },
   { connection: redis,
-    concurrency: parseInt(Deno.env.get("MAX_ACTIVE_REQS") || "5")
+    concurrency: parseInt(Deno.env.get("MAX_ACTIVE_REQ") || "5")
    }
 );
 
