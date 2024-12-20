@@ -14,6 +14,10 @@ import { supportedLangs } from '@/lib/constants/supportedLangs';
 import SelectLang from '@/components/codeeditor/SelectLanguage';
 import MonacoEditor from '@/components/codeeditor/MonacoEditor';
 import { runCode } from '@/helpers/question/runCode';
+import { getRunOutput } from '@/helpers/question/getRunOutput';
+import type { RunResponseBody } from '@/types/RunResponseBody';
+import { useTransition } from 'react';
+import LoadingWrapper from '@/components/LoadingWrapper';
 
 const sampleQuestion: Question = {
   title: "Two Sum",
@@ -39,14 +43,30 @@ export default function CodeEditor() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState<typeof supportedLangs[0]>(supportedLangs[0]);
+  const [isPending, startTransition] = useTransition();
 
   async function handleRun() {
-    try {
-      const response = await runCode(language.name, input, code, 1, sampleQuestion.id);
-      const data = await response.json();
-      setOutput(data.stdout);
-    } catch(err) {
-      console.error(err);
+    startTransition(async () => {
+      try {
+        await runCode(language.name, input, code, 1, sampleQuestion.id);
+        await getOutput();
+      } catch(err) {
+        console.error(err);
+      }
+    })
+  }
+
+  async function getOutput() {
+    for (let i = 0; i < 5; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await getRunOutput(1, sampleQuestion.id);
+      if(response.status === 204) continue
+
+      const data:RunResponseBody = await response.json();
+      if(data.compile && data.compile.code !== 0) setOutput(data.compile.stderr)
+      if(data.run.code !== 0) setOutput(data.run.stderr) 
+      if(data.run.code === 0) setOutput(data.run.stdout)
+      break
     }
   }
 
@@ -68,7 +88,7 @@ export default function CodeEditor() {
 
               <SelectLang setLang={setLanguage} />
 
-              <Button onClick={handleRun} variant="default" className="gap-2">
+              <Button disabled={isPending} onClick={handleRun} variant="default" className="gap-2">
                 <Play className="w-4 h-4" />
                 Run
               </Button>
@@ -106,15 +126,18 @@ export default function CodeEditor() {
                   </div>
 
                   {/* Output Panel */}
-                  <div className="p-4 dark:text-white">
-                    <div className="font-medium mb-2">Output</div>
-                    <Textarea
-                      value={output}
-                      readOnly
-                      className="h-[calc(100%-28px)] bg-muted"
-                      placeholder="Output will appear here..."
-                    />
-                  </div>
+
+                  <LoadingWrapper isLoading={isPending} className='h-full'>
+                    <div className="p-4 dark:text-white h-full">
+                      <div className="font-medium mb-2">Output</div>
+                      <Textarea
+                        value={output}
+                        readOnly
+                        className="h-[calc(100%-28px)] bg-muted"
+                        placeholder="Output will appear here..."
+                      />
+                    </div>
+                  </LoadingWrapper>
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>

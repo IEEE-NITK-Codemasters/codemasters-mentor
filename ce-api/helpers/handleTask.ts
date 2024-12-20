@@ -5,7 +5,7 @@ export async function handleTask(redis: RedisType , task:QueueItem) {
     try {
 
         const keyToOutput: string | undefined = 'run' + task.userId.toString() + task.questionId.toString();
-        const output = await fetch("https://emkc.org/api/v2/piston/execute", {
+        const output = await fetch(Deno.env.get("PISTON_API_URL") + "/api/v2/piston/execute", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
@@ -19,7 +19,6 @@ export async function handleTask(redis: RedisType , task:QueueItem) {
 
         // Expires in 15 seconds
         await redis.set(keyToOutput, JSON.stringify(json_output), 'EX', 20);
-        console.log(json_output)
 
     } catch (err) {
         console.error(err);
