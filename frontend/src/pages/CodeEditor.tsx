@@ -23,6 +23,12 @@ const sampleQuestion: Question = {
   title: "Two Sum",
   id: 1,
   difficulty: Difficulty.Easy,
+  compile_timeout: 10000,
+  run_timeout: 3000,
+  compile_cpu_time: 10000,
+  run_cpu_time: 3000,
+  compile_memory_limit: -1,
+  run_memory_limit: -1,
   topics: ["Array", "Hash Table"],
   description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
 
@@ -48,7 +54,7 @@ export default function CodeEditor() {
   async function handleRun() {
     startTransition(async () => {
       try {
-        await runCode(language.name, input, code, 1, sampleQuestion.id);
+        await runCode(language.name, input, code, 1, sampleQuestion);
         await getOutput();
       } catch(err) {
         console.error(err);
@@ -57,8 +63,8 @@ export default function CodeEditor() {
   }
 
   async function getOutput() {
-    for (let i = 0; i < 5; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+    for (let i = 0; i < 15; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 2500));
       const response = await getRunOutput(1, sampleQuestion.id);
       if(response.status === 204) continue
 
