@@ -13,9 +13,11 @@ import { Difficulty } from '@/enums/difficultyEnum';
 import { supportedLangs } from '@/lib/constants/supportedLangs';
 import SelectLang from '@/components/codeeditor/SelectLanguage';
 import MonacoEditor from '@/components/codeeditor/MonacoEditor';
+import { runCode } from '@/helpers/question/runCode';
 
 const sampleQuestion: Question = {
   title: "Two Sum",
+  id: 1,
   difficulty: Difficulty.Easy,
   topics: ["Array", "Hash Table"],
   description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
@@ -38,6 +40,16 @@ export default function CodeEditor() {
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState<typeof supportedLangs[0]>(supportedLangs[0]);
 
+  async function handleRun() {
+    try {
+      const response = await runCode(language.name, input, code, 1, sampleQuestion.id);
+      const data = await response.json();
+      setOutput(data.stdout);
+    } catch(err) {
+      console.error(err);
+    }
+  }
+
   return (
     <div className="h-screen w-screen bg-background">
       <ResizablePanelGroup direction="horizontal">
@@ -56,7 +68,7 @@ export default function CodeEditor() {
 
               <SelectLang setLang={setLanguage} />
 
-              <Button variant="default" className="gap-2">
+              <Button onClick={handleRun} variant="default" className="gap-2">
                 <Play className="w-4 h-4" />
                 Run
               </Button>
