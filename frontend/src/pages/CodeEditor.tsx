@@ -63,8 +63,8 @@ export default function CodeEditor() {
   }
 
   async function getOutput() {
-    for (let i = 0; i < 15; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+    for (let i = 0; i < 10; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await getRunOutput(1, sampleQuestion.id);
       if(response.status === 204) continue
 
@@ -72,8 +72,10 @@ export default function CodeEditor() {
       if(data.compile && data.compile.code !== 0) setOutput(data.compile.stderr)
       if(data.run.code !== 0) setOutput(data.run.stderr) 
       if(data.run.code === 0) setOutput(data.run.stdout)
-      break
+      return // Break the loop and return
     }
+
+    setOutput('Timeout Error: Code took too long to execute, Please Try again Later');
   }
 
   return (
