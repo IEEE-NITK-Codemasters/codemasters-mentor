@@ -1,45 +1,44 @@
-import type { QueueItem } from "../types/queueItem.ts";
-import { SubmissionType } from "../types/submissionType.ts";
+import { RunRequestBody } from "../types/RunReqBody.ts";
 import { db } from "../db/db.ts"
 import { Submissions } from "../db/schema.ts" 
+import { InferInsertModel } from "drizzle-orm";
+import { getPistonReqBody } from "./getPistonReqBody.ts";
 
-export async function handleSubmitTask(task:QueueItem) {
+type TSubmission = InferInsertModel<typeof Submissions>;
+
+export async function handleSubmitTask(task:RunRequestBody) {
     try {
 
         const expected_output: string | undefined = task.expected_output?.toString();
-        console.log(task);
          
         const output = await fetch(Deno.env.get("PISTON_API_URL") + "/api/v2/piston/execute", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(task)
+            body: JSON.stringify(getPistonReqBody(task))
         });
         if (!output.ok) {
             throw new Error("Error in fetching output")
         }
         const json_output = await output.json();
 
-        console.log(json_output);
-
-        let submission: SubmissionType = {
+        const submission: TSubmission = {
             userId: Number(task.userId),
             quesId: Number(task.questionId),
             timestamp: new Date(),
-            status: '',
             output: ''
         }
         if (json_output.compile && json_output.compile.code !== 0) {
-            submission['output'] = (json_output.compile.stderr);
+            submission['output'] = (json_output.compile.output);
             submission['status'] = "compile_time_error";
         }
         else if (json_output.run.code !== 0) {
-            submission['output'] = (json_output.run.stderr);
+            submission['output'] = (json_output.run.output);
             submission['status'] = "run_time_error";
         }
         else {
-            submission['output'] = (json_output.run.stdout);
+            submission['output'] = (json_output.run.output);
             if (expected_output === submission['output']) {
                 submission['status'] = "accepted";
             }
@@ -48,7 +47,6 @@ export async function handleSubmitTask(task:QueueItem) {
             }
         }
         
-        console.log(submission);
         await db.insert(Submissions).values(submission);
 
     } catch (err) {

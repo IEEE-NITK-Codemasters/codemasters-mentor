@@ -7,9 +7,8 @@ import cors from 'cors'
 import {Queue} from 'bullmq'
 import IORedis from 'ioredis'
 import { db } from "./db/db.ts"
-import { Submissions, Users } from "./db/schema.ts"
+import { Submissions } from "./db/schema.ts"
 import { Questions } from "./db/schema.ts";
-import { user } from "./types/userType.ts"
 import { eq, gte, and } from "drizzle-orm";
 
 const redis = new IORedis.default();
