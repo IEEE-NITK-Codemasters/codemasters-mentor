@@ -15,7 +15,7 @@ compile.code: Exit code from compile process, or null if signal is not null
 compile.signal: Signal from compile process, or null if code is not null
 */ 
 
-export type RunResponseBody = {
+export type PistonResponseBody = {
     language: string;
     version: string;
     run: {

@@ -1,7 +1,7 @@
 import type { QueueItem } from "../types/queueItem.ts";
 import type { RedisType } from "../main.ts";
 
-export async function handleTask(redis: RedisType , task:QueueItem) {
+export async function handleRunTask(redis: RedisType , task:QueueItem) {
     try {
 
         const keyToOutput: string | undefined = 'run' + task.userId.toString() + task.questionId.toString();
