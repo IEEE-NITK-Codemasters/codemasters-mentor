@@ -16,9 +16,5 @@ export const supportedLangs = [
         name : 'Python',
         monacoAlias: 'python',
         extension: 'py',
-<<<<<<< HEAD
-        version: '3.10.0'
-=======
->>>>>>> main
     }    
 ]
