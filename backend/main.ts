@@ -1,7 +1,8 @@
 // @deno-types="npm:@types/express@4"
 import express, { Request, Response } from "express";
 import { RunRequestBody } from "./types/RunRequestBody.ts"
-import { RunResponseBody } from "./types/RunResponseBody.ts";
+import { PistonResponseBody } from "./types/PistonResponseBody.ts";
+import { getRunOutputBody } from "./helpers/getRunOutputBody.ts";
 import cors from 'cors'
 import {Queue} from 'bullmq'
 import IORedis from 'ioredis'
@@ -36,18 +37,18 @@ app.get("/question/run", async (req: Request, res: Response) => {
         return
     }
 
-    const output: RunResponseBody = JSON.parse(outputString)
+    const pistonOutput: PistonResponseBody = JSON.parse(outputString)
+    const output = getRunOutputBody(pistonOutput)
     await redis.del(key)
     res.json(output)
 })
 
 app.post("/question/submit", async (req: Request, res: Response) => {
     const reqBody: RunRequestBody = req.body
-    const result = await db.select().from(Questions).where(eq(Questions.id, reqBody.questionId));
+    const result = await db.select().from(Questions).where(eq(Questions.id, parseInt(reqBody.questionId)));
 
-    //console.log(result);
-    reqBody['stdin'] = result[0].testcase;
-    reqBody['expected_output'] = result[0].expected_output;
+    reqBody.stdin = result[0].testcase;
+    reqBody.expected_output = result[0].expected_output;
 
     await submitQueue.add('submit-task', reqBody)
     res.sendStatus(200);
@@ -63,8 +64,8 @@ app.get("/question/submit", async (req: Request, res: Response) => {
                         .from(Submissions)
                         .where(
                             and(
-                                eq(Submissions.userId, userId),
-                                eq(Submissions.quesId, questionId),
+                                eq(Submissions.userId, parseInt(userId)),
+                                eq(Submissions.quesId, parseInt(questionId)),
                                 gte(Submissions.timestamp, new Date(timestamp))
                             )
     );

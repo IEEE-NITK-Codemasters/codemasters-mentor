@@ -15,14 +15,20 @@ import SelectLang from '@/components/codeeditor/SelectLanguage';
 import MonacoEditor from '@/components/codeeditor/MonacoEditor';
 import { runCode } from '@/helpers/question/runCode';
 import { getRunOutput } from '@/helpers/question/getRunOutput';
-import type { RunResponseBody } from '@/types/RunResponseBody';
 import { useTransition } from 'react';
 import LoadingWrapper from '@/components/LoadingWrapper';
+import { RunOutput } from '@/types/RunOutput';
 
 const sampleQuestion: Question = {
   title: "Two Sum",
   id: 1,
   difficulty: Difficulty.Easy,
+  compile_timeout: 10000,
+  run_timeout: 3000,
+  compile_cpu_time: 10000,
+  run_cpu_time: 3000,
+  compile_memory_limit: -1,
+  run_memory_limit: -1,
   topics: ["Array", "Hash Table"],
   description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
 
@@ -48,7 +54,7 @@ export default function CodeEditor() {
   async function handleRun() {
     startTransition(async () => {
       try {
-        await runCode(language.name, input, code, 1, sampleQuestion.id);
+        await runCode(language.id, input, code, 1, sampleQuestion);
         await getOutput();
       } catch(err) {
         console.error(err);
@@ -57,17 +63,18 @@ export default function CodeEditor() {
   }
 
   async function getOutput() {
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 10; i++) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await getRunOutput(1, sampleQuestion.id);
       if(response.status === 204) continue
 
-      const data:RunResponseBody = await response.json();
-      if(data.compile && data.compile.code !== 0) setOutput(data.compile.stderr)
-      if(data.run.code !== 0) setOutput(data.run.stderr) 
-      if(data.run.code === 0) setOutput(data.run.stdout)
-      break
+      const data:RunOutput = await response.json();
+      if(data.compile?.code === 1) setOutput(data.compile.stdout);
+      else setOutput(data.run.stdout);
+      return // Break the loop and return
     }
+
+    setOutput('Timeout Error: Code took too long to execute, Please Try again Later');
   }
 
   return (

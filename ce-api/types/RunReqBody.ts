@@ -8,6 +8,5 @@ export type RunRequestBody = {
     run_memory_limit?: number; // Optional, defaults to maximum or -1 (no limit)
     userId: string;
     questionId: string;
-    expected_output?: string;
 };
 
