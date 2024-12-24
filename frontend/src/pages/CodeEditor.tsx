@@ -15,9 +15,9 @@ import SelectLang from '@/components/codeeditor/SelectLanguage';
 import MonacoEditor from '@/components/codeeditor/MonacoEditor';
 import { runCode } from '@/helpers/question/runCode';
 import { getRunOutput } from '@/helpers/question/getRunOutput';
-import type { RunResponseBody } from '@/types/RunResponseBody';
 import { useTransition } from 'react';
 import LoadingWrapper from '@/components/LoadingWrapper';
+import { RunOutput } from '@/types/RunOutput';
 
 const sampleQuestion: Question = {
   title: "Two Sum",
@@ -54,7 +54,7 @@ export default function CodeEditor() {
   async function handleRun() {
     startTransition(async () => {
       try {
-        await runCode(language.name, input, code, 1, sampleQuestion);
+        await runCode(language.id, input, code, 1, sampleQuestion);
         await getOutput();
       } catch(err) {
         console.error(err);
@@ -68,10 +68,9 @@ export default function CodeEditor() {
       const response = await getRunOutput(1, sampleQuestion.id);
       if(response.status === 204) continue
 
-      const data:RunResponseBody = await response.json();
-      if(data.compile && data.compile.code !== 0) setOutput(data.compile.stderr)
-      if(data.run.code !== 0) setOutput(data.run.stderr) 
-      if(data.run.code === 0) setOutput(data.run.stdout)
+      const data:RunOutput = await response.json();
+      if(data.compile?.code === 1) setOutput(data.compile.stdout);
+      else setOutput(data.run.stdout);
       return // Break the loop and return
     }
 

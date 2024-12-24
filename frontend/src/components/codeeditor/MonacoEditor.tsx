@@ -20,7 +20,7 @@ const customMonacoTheme = {
 
 export default function MonacoEditor({ code, language, setCode }: IProps) {
 
-    function handleEditorDidMount(editor: any, monaco: any) {
+    function handleEditorDidMount(_:any, monaco: any) {
         // custom background color
         monaco.editor.defineTheme('myCustomTheme', customMonacoTheme)
         monaco.editor.setTheme('myCustomTheme')
