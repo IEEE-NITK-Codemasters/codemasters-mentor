@@ -2,7 +2,7 @@ import type { RunRequestBody } from "../types/RunReqBody.ts";
 import { getPistonReqBody } from "./getPistonReqBody.ts";
 import type { RedisType } from "../main.ts";
 
-export async function handleTask(redis: RedisType , task:RunRequestBody) {
+export async function handleRunTask(redis: RedisType , task:RunRequestBody) {
     try {
 
         const keyToOutput: string | undefined = 'run' + task.userId.toString() + task.questionId.toString();
