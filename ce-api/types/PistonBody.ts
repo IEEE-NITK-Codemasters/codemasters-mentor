@@ -4,7 +4,7 @@ type File = {
     encoding?: "base64" | "hex" | "utf8"; // Optional, defaults to utf8
 };
 
-export type QueueItem = {
+export type PistonBody = {
     language: string;
     version: string;
     files: File[];
@@ -14,7 +14,5 @@ export type QueueItem = {
     compile_timeout?: number; // Optional, defaults to maximum
     compile_memory_limit?: number; // Optional, defaults to maximum or -1 (no limit)
     run_memory_limit?: number; // Optional, defaults to maximum or -1 (no limit)
-    userId: string;
-    questionId: string;
 };
 

@@ -31,7 +31,7 @@ export default function SelectLang({setLang}: Props) {
         <SelectGroup>
           
             {supportedLangs.map((lang) => (
-                <SelectItem key={lang.key} value={lang.name}>
+                <SelectItem key={lang.id} value={lang.name}>
                 {lang.name}
                 </SelectItem>
             ))}
