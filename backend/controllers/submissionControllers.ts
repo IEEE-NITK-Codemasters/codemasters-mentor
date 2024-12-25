@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 import { db } from "../db/db.ts";
 import { Submissions } from "../db/schema.ts";
-import {and,eq} from "drizzle-orm";
+import {and,eq,desc} from "drizzle-orm";
 
 export async function getSubmissions(req: Request, res: Response) {
     const userId = req.query.userId as string
@@ -16,6 +16,7 @@ export async function getSubmissions(req: Request, res: Response) {
                     eq(Submissions.quesId, parseInt(questionId))
                 )
             )
+            .orderBy(desc(Submissions.id))
         res.json(submissions)
     } catch (error) {
         console.log(error)

@@ -28,7 +28,7 @@ export default function QuestionPanel({question,userId}: IProps) {
     async function handleGetSubmissions() {
         startTransition(async () => {
           try {
-            const res = await getSubmissions(question.id, userId);
+            const res = await getSubmissions(userId, question.id);
             const submissions:SubmissionRes[] = await res.json();
             setSubmissions(submissions);
           } catch (err) {
