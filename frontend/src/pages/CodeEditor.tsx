@@ -50,7 +50,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState<typeof supportedLangs[0]>(supportedLangs[0]);
   const [isPending, startTransition] = useTransition();
-  const [submitTimestamp, setSubmitTimestamp] = useState(0);
+  const [submissionId, setSubmissionId] = useState(0);
   const [outputMode, setOutputMode] = useState<'run' | 'submit'>('run');
   const [submissionStatus, setSubmissionStatus] = useState<submissionStatusEnum | null>(null);
   const question = use(questionPromise)
@@ -86,19 +86,20 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
     setOutputMode('submit');
     startTransition(async () => {
       try {
-        setSubmitTimestamp(Date.now());
-        await submitCode(1, question, code, language.id, input);
-        await pollSubmitOutput();
+        const res = await submitCode(1, question, code, language.id, input);
+        const {submissionId} = await res.json();
+        setSubmissionId(submissionId);
+        await pollSubmitOutput(submissionId);
       } catch(err) {
         console.error(err);
       }
     })
   }
 
-  async function pollSubmitOutput() {
+  async function pollSubmitOutput(submissionId: number) {
     for (let i = 0; i < 10; i++) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await getSubmitOutput(1,question.id, submitTimestamp);
+      const response = await getSubmitOutput(1,question.id, submissionId);
       if(response.status === 204) continue
 
       const data:SubmissionRes = await response.json();
