@@ -9,8 +9,9 @@ import IORedis from 'ioredis'
 import { db } from "./db/db.ts"
 import { Submissions } from "./db/schema.ts"
 import { Questions } from "./db/schema.ts";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import questionRoutes from "./routes/questionRoutes.ts";
+import type {SubmitRequestBody} from "./types/SubmitRequestBody.ts";
 
 const redis = new IORedis.default();
 const app = express()
@@ -45,34 +46,41 @@ app.get("/question/run", async (req: Request, res: Response) => {
 })
 
 app.post("/question/submit", async (req: Request, res: Response) => {
-    const reqBody: RunRequestBody = req.body
+    const reqBody: SubmitRequestBody = req.body
     const result = await db.select().from(Questions).where(eq(Questions.id, parseInt(reqBody.questionId)));
 
     reqBody.stdin = result[0].testcase;
     reqBody.expected_output = result[0].expected_output;
 
+    const pendingSubmission =  await db.insert(Submissions).values({
+        userId: parseInt(reqBody.userId),
+        quesId: parseInt(reqBody.questionId),
+        contestId: result[0].contestId,
+        status: "pending"
+    }).returning({id : Submissions.id})
+
+    reqBody.submissionId = pendingSubmission[0].id
+    console.log("pending submission id : ", pendingSubmission[0].id)
+
     await submitQueue.add('submit-task', reqBody)
-    res.sendStatus(200);
+    res.json({submissionId: pendingSubmission[0].id});
 });
 
 app.get("/question/submit", async (req: Request, res: Response) => {
-    const userId = req.query.userId as string
-    const questionId = req.query.questionId as string
+    const submissionId = req.query.submissionId as string
 
     const submission = await db
                         .select()
                         .from(Submissions)
                         .where(
                             and(
-                                eq(Submissions.userId, parseInt(userId)),
-                                eq(Submissions.quesId, parseInt(questionId)),
+                                eq(Submissions.id,parseInt(submissionId)),
                             )
-                        ).orderBy(desc(Submissions.timestamp))
-                        .limit(1)
+                        ).limit(1)
 
-    if (submission === null) {
-        res.sendStatus(204);
-        return;
+    if(submission[0].status === "pending") {
+        res.sendStatus(204)
+        return
     }
 
     res.json(submission[0]);

@@ -1,6 +1,6 @@
 import { pgTable, serial, varchar, boolean, text, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
 
-export const statusEnum = pgEnum("statusEnum", ["accepted", "rejected", "time_limit_exceeded", "memory_limit_exceeded", "compile_time_error", "run_time_error"]);
+export const statusEnum = pgEnum("statusEnum", ["accepted", "rejected", "time_limit_exceeded", "memory_limit_exceeded", "compile_time_error", "run_time_error","pending"]);
 
 export const Users = pgTable("Users", {
   id: serial("id").primaryKey(),
@@ -45,7 +45,7 @@ export const Submissions = pgTable("Submissions", {
     .notNull()
     .references(() => Questions.id, { onDelete: "cascade" }),
   status: statusEnum("statusEnum"),
-  output: text("output").notNull(),
+  output: text("output"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
 
