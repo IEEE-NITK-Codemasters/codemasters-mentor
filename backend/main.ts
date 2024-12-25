@@ -10,6 +10,7 @@ import { db } from "./db/db.ts"
 import { Submissions } from "./db/schema.ts"
 import { Questions } from "./db/schema.ts";
 import { eq, gte, and } from "drizzle-orm";
+import questionRoutes from "./routes/questionRoutes.ts";
 
 const redis = new IORedis.default();
 const app = express()
@@ -19,6 +20,7 @@ const submitQueue = new Queue('submit-queue', { connection: redis })
 
 app.use(express.json());
 app.use(cors())
+app.use('/questions', questionRoutes)
 
 app.post("/question/run", async (req: Request, res: Response) => {
     const reqBody: RunRequestBody = req.body

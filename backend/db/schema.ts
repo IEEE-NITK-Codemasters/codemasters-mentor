@@ -1,6 +1,6 @@
 import { pgTable, serial, varchar, boolean, text, integer, timestamp, pgEnum } from "drizzle-orm/pg-core";
-import { statusEnum } from "../enums/statusEnum.ts"
-import { difficultyEnum } from "../enums/difficultyEnum.ts";
+
+export const statusEnum = pgEnum("statusEnum", ["accepted", "rejected", "time_limit_exceeded", "memory_limit_exceeded", "compile_time_error", "run_time_error"]);
 
 export const Users = pgTable("Users", {
   id: serial("id").primaryKey(),
