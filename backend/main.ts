@@ -9,7 +9,7 @@ import IORedis from 'ioredis'
 import { db } from "./db/db.ts"
 import { Submissions } from "./db/schema.ts"
 import { Questions } from "./db/schema.ts";
-import { eq, gte, and } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import questionRoutes from "./routes/questionRoutes.ts";
 
 const redis = new IORedis.default();
@@ -57,8 +57,7 @@ app.post("/question/submit", async (req: Request, res: Response) => {
 
 app.get("/question/submit", async (req: Request, res: Response) => {
     const userId = req.query.userId as string
-    const questionId = req.query.question as string
-    const timestamp = req.query.timestamp as string
+    const questionId = req.query.questionId as string
 
     const submission = await db
                         .select()
@@ -67,16 +66,16 @@ app.get("/question/submit", async (req: Request, res: Response) => {
                             and(
                                 eq(Submissions.userId, parseInt(userId)),
                                 eq(Submissions.quesId, parseInt(questionId)),
-                                gte(Submissions.timestamp, new Date(timestamp))
                             )
-    );
+                        ).orderBy(desc(Submissions.timestamp))
+                        .limit(1)
 
     if (submission === null) {
         res.sendStatus(204);
         return;
     }
 
-    res.json(submission);
+    res.json(submission[0]);
 })
 
 app.listen(port, () => {

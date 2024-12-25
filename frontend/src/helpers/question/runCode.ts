@@ -1,9 +1,9 @@
 import type { Question } from "@/types/question";
-import { RunRequestBody } from "@/types/RunOutput";
+import { CodeRequestBody } from "@/types/CodeRequestBody";
 let url = import.meta.env.VITE_BACKEND_URL + '/question/run';
 
 export async function runCode(languageId: string,stdin:string, code: string, userId: number, question: Question){
-    const body:RunRequestBody = {
+    const body:CodeRequestBody = {
         languageId,
         stdin,
         code,

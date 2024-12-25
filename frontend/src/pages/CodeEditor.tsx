@@ -23,6 +23,9 @@ import { getQuestion } from '@/helpers/question/getQuestion';
 import FullScreenSpinner from '@/components/FullScreenSpinner';
 import { ErrorBoundary } from 'react-error-boundary';
 import ErrorPage from './ErrorPage';
+import { submitCode } from '@/helpers/question/submitCode';
+import { getSubmitOutput } from '@/helpers/question/getSubmitOutput';
+import { SubmissionRes } from '@/types/SubmissionRes';
 
 export default function CodeEditorPage() {
 
@@ -45,20 +48,21 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState<typeof supportedLangs[0]>(supportedLangs[0]);
   const [isPending, startTransition] = useTransition();
+  const [submitTimestamp, setSubmitTimestamp] = useState(0);
   const question = use(questionPromise)
 
   async function handleRun() {
     startTransition(async () => {
       try {
         await runCode(language.id, input, code, 1, question);
-        await getOutput();
+        await pollRunOutput();
       } catch(err) {
         console.error(err);
       }
     })
   }
 
-  async function getOutput() {
+  async function pollRunOutput() {
     for (let i = 0; i < 10; i++) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       const response = await getRunOutput(1, question.id);
@@ -71,6 +75,32 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
     }
 
     setOutput('Timeout Error: Code took too long to execute, Please Try again Later');
+  }
+
+  async function handleSubmit() {
+    startTransition(async () => {
+      try {
+        setSubmitTimestamp(Date.now());
+        await submitCode(1, question, code, language.id, input);
+        await pollSubmitOutput();
+      } catch(err) {
+        console.error(err);
+      }
+    })
+  }
+
+  async function pollSubmitOutput() {
+    for (let i = 0; i < 10; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await getSubmitOutput(1,question.id, submitTimestamp);
+      if(response.status === 204) continue
+
+      const data:SubmissionRes = await response.json();
+      setOutput(data.status)
+      return // Break the loop and return
+    }
+
+    setOutput('Timeout Error: Code took too long to execute')
   }
 
   return (
@@ -91,20 +121,16 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
 
               <SelectLang setLang={setLanguage} />
 
-              <Button disabled={isPending} onClick={handleRun} variant="default" className="gap-2">
+              <Button variant="secondary" disabled={isPending} onClick={handleRun} className="gap-2">
                 <Play className="w-4 h-4" />
                 Run
               </Button>
 
-              <Button variant="secondary" className="gap-2">
+              <Button onClick={handleSubmit} className="gap-2">
                 <Send className="w-4 h-4" />
                 Submit
               </Button>
 
-              <Button variant="secondary" className="gap-2">
-                <History className="w-4 h-4" />
-                Submissions
-              </Button>
             </div>
 
             {/* Code Editor */}
