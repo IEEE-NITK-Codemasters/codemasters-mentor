@@ -103,7 +103,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
       if(response.status === 204) continue
 
       const data:SubmissionRes = await response.json();
-      setOutput(data.status)
+      setOutput(data.output)
       setSubmissionStatus(data.status)
       return // Break the loop and return
     }
@@ -116,7 +116,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
       <ResizablePanelGroup direction="horizontal">
         {/* Question Panel */}
         <ResizablePanel defaultSize={40}>
-          <QuestionPanel question={question} />
+          <QuestionPanel question={question} userId={1}/>
         </ResizablePanel>
 
         <ResizableHandle withHandle/>
@@ -174,7 +174,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
                         placeholder="Output will appear here..."
                       />}
 
-                      {outputMode === 'submit' && !isPending &&<div className="flex mt-6 items-center gap-2 mb-2">
+                      {outputMode === 'submit' && !isPending &&<div className="flex flex-wrap mt-6 items-center gap-2 mb-2">
                         {submissionStatus && submissionStatus === submissionStatusEnum.accepted ? (
                           <CheckCircle2 className="w-8 h-8 text-green-500" />
                         ) : (
@@ -190,6 +190,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
                         >
                           {submissionStatus}
                         </Badge>
+                        {submissionStatus !== submissionStatusEnum.accepted &&<p>{output}</p>}
                       </div>
                       }
 
