@@ -134,7 +134,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
                 Run
               </Button>
 
-              <Button onClick={handleSubmit} className="gap-2">
+              <Button onClick={handleSubmit} disabled={isPending} className="gap-2">
                 <Send className="w-4 h-4" />
                 Submit
               </Button>
