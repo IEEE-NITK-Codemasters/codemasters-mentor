@@ -1,5 +1,4 @@
-CREATE TYPE "public"."difficultyEnum" AS ENUM('easy', 'medium', 'hard');--> statement-breakpoint
-CREATE TYPE "public"."statusEnum" AS ENUM('accepted', 'rejected', 'time_limit_exceeded', 'memory_limit_exceeded');--> statement-breakpoint
+CREATE TYPE "public"."statusEnum" AS ENUM('accepted', 'rejected', 'time_limit_exceeded', 'memory_limit_exceeded', 'compile_time_error', 'run_time_error');--> statement-breakpoint
 CREATE TABLE "Contests" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
