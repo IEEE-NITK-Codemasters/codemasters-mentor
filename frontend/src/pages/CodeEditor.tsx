@@ -6,7 +6,7 @@ import {
 } from '@/components/ui/resizable';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Play, Send, History } from 'lucide-react';
+import { CheckCircle2, Play, Send, XCircle } from 'lucide-react';
 import QuestionPanel from '@/components/codeeditor/QuestionPanel';
 import type { Question } from '@/types/question';
 import { supportedLangs } from '@/lib/constants/supportedLangs';
@@ -26,6 +26,8 @@ import ErrorPage from './ErrorPage';
 import { submitCode } from '@/helpers/question/submitCode';
 import { getSubmitOutput } from '@/helpers/question/getSubmitOutput';
 import { SubmissionRes } from '@/types/SubmissionRes';
+import { submissionStatusEnum } from '@/enums/submissionStatusEnum';
+import { Badge } from '@/components/ui/badge';
 
 export default function CodeEditorPage() {
 
@@ -49,9 +51,12 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
   const [language, setLanguage] = useState<typeof supportedLangs[0]>(supportedLangs[0]);
   const [isPending, startTransition] = useTransition();
   const [submitTimestamp, setSubmitTimestamp] = useState(0);
+  const [outputMode, setOutputMode] = useState<'run' | 'submit'>('run');
+  const [submissionStatus, setSubmissionStatus] = useState<submissionStatusEnum | null>(null);
   const question = use(questionPromise)
 
   async function handleRun() {
+    setOutputMode('run');
     startTransition(async () => {
       try {
         await runCode(language.id, input, code, 1, question);
@@ -78,6 +83,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
   }
 
   async function handleSubmit() {
+    setOutputMode('submit');
     startTransition(async () => {
       try {
         setSubmitTimestamp(Date.now());
@@ -97,6 +103,7 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
 
       const data:SubmissionRes = await response.json();
       setOutput(data.status)
+      setSubmissionStatus(data.status)
       return // Break the loop and return
     }
 
@@ -159,12 +166,32 @@ function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
                   <LoadingWrapper isLoading={isPending} className='h-full'>
                     <div className="p-4 dark:text-white h-full">
                       <div className="font-medium mb-2">Output</div>
-                      <Textarea
+                      {outputMode === 'run' && <Textarea
                         value={output}
                         readOnly
                         className="h-[calc(100%-28px)] bg-muted"
                         placeholder="Output will appear here..."
-                      />
+                      />}
+
+                      {outputMode === 'submit' && !isPending &&<div className="flex mt-6 items-center gap-2 mb-2">
+                        {submissionStatus && submissionStatus === submissionStatusEnum.accepted ? (
+                          <CheckCircle2 className="w-8 h-8 text-green-500" />
+                        ) : (
+                          <XCircle className="w-8 h-8 text-red-500" />
+                        )}
+                        <Badge
+                          variant="secondary"
+                          className={
+                            submissionStatus === submissionStatusEnum.accepted
+                              ? 'bg-green-500/10 text-green-500 text-lg' 
+                              : 'bg-red-500/10 text-red-500 text-lg' 
+                          }
+                        >
+                          {submissionStatus}
+                        </Badge>
+                      </div>
+                      }
+
                     </div>
                   </LoadingWrapper>
                 </div>
