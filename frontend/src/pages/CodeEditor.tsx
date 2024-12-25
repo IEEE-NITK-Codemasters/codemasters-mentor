@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Play, Send, History } from 'lucide-react';
 import QuestionPanel from '@/components/codeeditor/QuestionPanel';
 import type { Question } from '@/types/question';
-import { Difficulty } from '@/enums/difficultyEnum';
 import { supportedLangs } from '@/lib/constants/supportedLangs';
 import SelectLang from '@/components/codeeditor/SelectLanguage';
 import MonacoEditor from '@/components/codeeditor/MonacoEditor';
@@ -18,43 +17,40 @@ import { getRunOutput } from '@/helpers/question/getRunOutput';
 import { useTransition } from 'react';
 import LoadingWrapper from '@/components/LoadingWrapper';
 import { RunOutput } from '@/types/RunOutput';
+import { useParams } from 'react-router-dom';
+import {use,Suspense} from 'react';
+import { getQuestion } from '@/helpers/question/getQuestion';
+import FullScreenSpinner from '@/components/FullScreenSpinner';
+import { ErrorBoundary } from 'react-error-boundary';
+import ErrorPage from './ErrorPage';
 
-const sampleQuestion: Question = {
-  title: "Two Sum",
-  id: 1,
-  difficulty: Difficulty.Easy,
-  compile_timeout: 10000,
-  run_timeout: 3000,
-  compile_cpu_time: 10000,
-  run_cpu_time: 3000,
-  compile_memory_limit: -1,
-  run_memory_limit: -1,
-  topics: ["Array", "Hash Table"],
-  description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+export default function CodeEditorPage() {
 
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
+  const {id} = useParams();
+  const questionPromise = getQuestion(parseInt(id!));
 
-Example 1:
-Input: nums = [2,7,11,15], target = 9
-Output: [0,1]
-Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
+  return (
+    <ErrorBoundary fallback={<ErrorPage/>}>
+      <Suspense fallback={<FullScreenSpinner />}>
+        <CodeEditor questionPromise={questionPromise}/>
+      </Suspense>
+    </ErrorBoundary>
+  );
+}
 
-Example 2:
-Input: nums = [3,2,4], target = 6
-Output: [1,2]`
-};
 
-export default function CodeEditor() {
+function CodeEditor({questionPromise}: {questionPromise: Promise<Question>}) {
   const [code, setCode] = useState('');
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [language, setLanguage] = useState<typeof supportedLangs[0]>(supportedLangs[0]);
   const [isPending, startTransition] = useTransition();
+  const question = use(questionPromise)
 
   async function handleRun() {
     startTransition(async () => {
       try {
-        await runCode(language.id, input, code, 1, sampleQuestion);
+        await runCode(language.id, input, code, 1, question);
         await getOutput();
       } catch(err) {
         console.error(err);
@@ -65,7 +61,7 @@ export default function CodeEditor() {
   async function getOutput() {
     for (let i = 0; i < 10; i++) {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const response = await getRunOutput(1, sampleQuestion.id);
+      const response = await getRunOutput(1, question.id);
       if(response.status === 204) continue
 
       const data:RunOutput = await response.json();
@@ -82,7 +78,7 @@ export default function CodeEditor() {
       <ResizablePanelGroup direction="horizontal">
         {/* Question Panel */}
         <ResizablePanel defaultSize={40}>
-          <QuestionPanel question={sampleQuestion} />
+          <QuestionPanel question={question} />
         </ResizablePanel>
 
         <ResizableHandle withHandle/>

@@ -1,6 +1,7 @@
 import { Difficulty } from "@/enums/difficultyEnum"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area";
+import Markdown from "react-markdown";
 
 interface IProps {
     question: {
@@ -33,8 +34,8 @@ export default function QuestionPanel({question}: IProps) {
               ))}
             </div>
             <ScrollArea className="h-[calc(100vh-140px)]">
-              <div className="whitespace-pre-wrap dark:text-white">
-                {question.description}
+              <div className="prose dark:prose-invert">
+                <Markdown>{question.description}</Markdown>
               </div>
             </ScrollArea>
           </div>
