@@ -7,11 +7,9 @@
     "@types/pg": "npm:@types/pg@^8.11.10",
     "bullmq": "npm:bullmq@^5.34.3",
     "cors": "npm:cors@^2.8.5",
-    "drizzle-kit": "npm:drizzle-kit@^0.30.1",
     "drizzle-orm": "npm:drizzle-orm@^0.38.1",
     "express": "npm:express@4.18.2",
     "ioredis": "npm:ioredis@^5.4.1",
     "pg": "npm:pg@^8.13.1"
-  },
-  "nodeModulesDir":"auto"
+  }
 }

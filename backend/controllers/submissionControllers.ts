@@ -1,6 +1,6 @@
 import {Request, Response} from "express";
 import { db } from "../db/db.ts";
-import { Submissions } from "../db/schema.ts";
+import { Submissions } from "@codemasters/db";
 import {and,eq,desc} from "drizzle-orm";
 
 export async function getSubmissions(req: Request, res: Response) {

@@ -1,6 +1,6 @@
 import { db } from "../db/db.ts";
 import type { Request, Response } from 'express'
-import { Questions } from "../db/schema.ts";
+import { Questions } from "@codemasters/db";
 import { eq } from 'drizzle-orm'
 
 // GET /question/:id

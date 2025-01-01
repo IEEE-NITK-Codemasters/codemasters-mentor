@@ -7,8 +7,8 @@ import cors from 'cors'
 import {Queue} from 'bullmq'
 import IORedis from 'ioredis'
 import { db } from "./db/db.ts"
-import { Submissions } from "./db/schema.ts"
-import { Questions } from "./db/schema.ts";
+import { Submissions } from "@codemasters/db"
+import { Questions } from "@codemasters/db";
 import { eq, and } from "drizzle-orm";
 import questionRoutes from "./routes/questionRoutes.ts";
 import type {SubmitRequestBody} from "./types/SubmitRequestBody.ts";
