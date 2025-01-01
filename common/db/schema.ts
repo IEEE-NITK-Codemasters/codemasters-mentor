@@ -48,6 +48,3 @@ export const Submissions = pgTable("Submissions", {
   output: text("output"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
 });
-
-
-
