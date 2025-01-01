@@ -1,4 +1,4 @@
 {
-    "workspace":["ce-api","backend","frontend","db"],
+    "workspace":["ce-api","backend","db"],
     "nodeModulesDir":"auto"
 }
