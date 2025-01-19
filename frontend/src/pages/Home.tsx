@@ -8,10 +8,10 @@ const Home: React.FC = () => {
       <h1>Select a Question</h1>
       <ul>
         <li>
-          <Link to="/question/1">Question 1</Link>
+          <Link to="/question/1" className="dark:text-white">Question 1</Link>
         </li>
         <li>
-          <Link to="/question/2">Question 2</Link>
+          <Link to="/question/2" className="dark:text-white">Question 2</Link>
         </li>
       </ul>
     </div>
