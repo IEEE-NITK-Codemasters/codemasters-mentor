@@ -15,6 +15,13 @@
       "when": 1735133828476,
       "tag": "0001_shocking_mach_iv",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1737278685678,
+      "tag": "0002_lean_butterfly",
+      "breakpoints": true
     }
   ]
 }
