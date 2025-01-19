@@ -14,6 +14,11 @@ export const Contests = pgTable("Contests", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   public: boolean("public").notNull(),
+  start_time: timestamp("start_time").notNull(), // Added start_time
+  end_time: timestamp("end_time").notNull(),   // Added end_time
+  created_by: integer("created_by")
+    .notNull()
+    .references(() => Users.id, { onDelete: "cascade" }), // Added created_by
 });
 
 
@@ -47,6 +52,27 @@ export const Submissions = pgTable("Submissions", {
   status: statusEnum("statusEnum"),
   output: text("output"),
   timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export const ContestRegistrations = pgTable("ContestRegistrations", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => Users.id, { onDelete: "cascade" }),
+  contestId: integer("contest_id")
+    .notNull()
+    .references(() => Contests.id, { onDelete: "cascade" }),
+});
+
+// New table for contest questions
+export const ContestQuestions = pgTable("ContestQuestions", {
+  id: serial("id").primaryKey(),
+  contestId: integer("contest_id")
+    .notNull()
+    .references(() => Contests.id, { onDelete: "cascade" }),
+  questionId: integer("question_id")
+    .notNull()
+    .references(() => Questions.id, { onDelete: "cascade" }),
 });
 
 
