@@ -13,6 +13,11 @@ import { eq, and } from "drizzle-orm";
 import questionRoutes from "./routes/questionRoutes.ts";
 import type {SubmitRequestBody} from "./types/SubmitRequestBody.ts";
 import submissionRoutes from "./routes/submissionRoutes.ts";
+import { User } from "./types/UserType.ts";
+import { Users } from "@codemasters/db"
+import { ExistingUser } from "./types/ExistingUser.ts";
+import jwt from "jsonwebtoken"
+import { authMiddleware } from "./middlewares/authMiddleware.ts";
 
 const redis = new IORedis.default();
 const app = express()
@@ -20,10 +25,70 @@ const port = Number(Deno.env.get("PORT")) || 3000;
 const runQueue = new Queue('run-queue', { connection: redis })
 const submitQueue = new Queue('submit-queue', { connection: redis })
 
+
 app.use(express.json());
 app.use(cors())
 app.use('/questions', questionRoutes)
 app.use('/submissions', submissionRoutes)
+
+app.get("/", async (req: Request, res: Response) => {
+    return res.json({ msg: "hello" });
+})
+
+app.post("/signup", async (req: Request, res: Response) => {
+    const newUser: User = req.body;
+    console.log(newUser);
+    const result = await db
+        .select()
+        .from(Users)
+        .where(
+            and(
+                eq(Users.email, newUser.email),
+            )
+    );
+    
+    console.log(result)
+    if (result.length > 0) {
+        return res.status(200).json({msg: "user already exists"})
+    }
+
+    try {
+        await db.insert(Users).values(newUser)
+        return res.status(200).json({msg: "user created ..."});
+    }
+    catch {
+        return res.json({ msg: "error creating user, try again..." });
+    }
+});
+
+app.post("/login", async (req: Request, res: Response) => {
+    const user = req.body;
+    try {
+        let existingUser: ExistingUser[] | ExistingUser = await db.select().from(Users).where(and(eq(user.email, Users.email))).limit(1)
+        if (!existingUser) {
+            return res.status(200).json({ msg: "user does not exist with this email" });
+        }
+        existingUser = existingUser[0]
+        console.log(existingUser);
+
+        if (existingUser.password === user.password) {
+            const token = jwt.sign({ userId: user.userId, email: user.email }, Deno.env.get("JWT_SECRET"));
+            res.cookie("auth_token", token, {
+                httpOnly: true, // Prevent access via JavaScript
+                secure: true,   // Use HTTPS in production
+            });
+            return res.status(200).json({msg: "login successfull..."})
+        }
+        else {
+            return res.json({ msg: "invalid password" });
+        }
+    }
+    catch {
+        return res.json({ msg: 'error with servers' });
+    }
+})
+
+app.use(authMiddleware)
 
 app.post("/question/run", async (req: Request, res: Response) => {
     const reqBody: RunRequestBody = req.body
