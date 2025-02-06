@@ -2,42 +2,52 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-// import { displayErrorToast } from "@/lib/helpers/apiRequestHelpers";
+import { useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { Link } from "react-router-dom";
 import FullScreenSpinner from "@/components/FullScreenSpinner";
+import { useNavigate } from "react-router-dom";
+import {signUp} from "@/helpers/auth/signup"
 
 export default function () {
-//   const router = useRouter();
   const {toast} = useToast()
+  const [isPending, startTransition] = useTransition();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPass,setConfirmPass] = useState("")
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   async function handleSignUp() {
-    // setLoading(true);
-    // const res = await SignUp(username,email, password,confirmPass);
-    // setLoading(false);
 
-    // if(res.success) {
-    //   router.push("/home/0");
-    // } else {
-    //   displayErrorToast(toast ,res.message!)
-      //   toast({
-      //     title: "Error",
-      //     variant: "destructive",
-      //     description: res.message!
-      // })
-    // }
+    if(password !== confirmPass) {
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: "Passwords do not match"
+      })
+      return;
+    }
+
+    startTransition(async () => {
+      const res = await signUp(username,email,password);
+      const data = await res.json();
+      if(res.ok) {
+        navigate("/auth/signin");
+        return;
+      }
+
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: data.msg
+      })
+    })
   }
 
-  if(loading) {
-    return <FullScreenSpinner />
-  }
   return (
     <>
+    {isPending && <FullScreenSpinner />}
       <div className="flex items-center justify-center dark:text-white pt-12 px-4 sm:px-6 lg:px-8">
         <div className="space-y-8 max-w-[28rem]">
           <div className="space-y-2">

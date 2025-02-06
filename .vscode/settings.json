@@ -1,0 +1,8 @@
+{
+    "deno.enable": true,
+    "deno.enablePaths": [
+        "./backend",
+        "./ce-api",
+        "./db"
+    ]
+}

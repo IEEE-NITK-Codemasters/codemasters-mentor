@@ -2,36 +2,38 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-// import { displayErrorToast } from "@/lib/helpers/apiRequestHelpers";
+import { useTransition } from "react";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import FullScreenSpinner from "@/components/FullScreenSpinner";
+import { login } from "@/helpers/auth/login";
 
 export default function () {
-//   const router = useRouter();
   const {toast} = useToast()
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const navigate = useNavigate();
 
   async function handleSignIn() {
-    // setLoading(true);
-    // const res = await SignUp(username,email, password,confirmPass);
-    // setLoading(false);
+    startTransition(async () => {
+      const res = await login(email, password);
+      const data = await res.json();
+      if(res.ok) {
+        navigate("/")
+        return;
+      }
 
-    // if(res.success) {
-    //   router.push("/home/0");
-    // } else {
-    //   displayErrorToast(toast ,res.message!)
-      //   toast({
-      //     title: "Error",
-      //     variant: "destructive",
-      //     description: res.message!
-      // })
-    // }
+      toast({
+        title: "Error",
+        variant: "destructive",
+        description: data.msg
+      })
+    })
   }
 
-  if(loading) {
+  if(isPending) {
     return <FullScreenSpinner />
   }
   return (
@@ -41,14 +43,14 @@ export default function () {
           <div className="space-y-2">
             <h1 className="text-3xl font-bold">Sign In</h1>
             <p className="text-gray-500 dark:text-gray-400">
-              Enter your username and password below to sign in
+              Enter your Email and password below to sign in
             </p>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="username">Email</Label>
               <Input
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="username"
                 required
                 type="text"
