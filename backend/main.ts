@@ -13,10 +13,7 @@ import { eq, and } from "drizzle-orm";
 import questionRoutes from "./routes/questionRoutes.ts";
 import type {SubmitRequestBody} from "./types/SubmitRequestBody.ts";
 import submissionRoutes from "./routes/submissionRoutes.ts";
-import { User } from "./types/UserType.ts";
-import { Users } from "@codemasters/db"
-import { ExistingUser } from "./types/ExistingUser.ts";
-import jwt from "jsonwebtoken"
+import authRoutes from "./routes/authRoutes.ts";
 
 const redis = new IORedis.default();
 const app = express()
@@ -34,63 +31,7 @@ app.use(cors(
 ))
 app.use('/questions', questionRoutes)
 app.use('/submissions', submissionRoutes)
-
-app.post("/auth/signup", async (req: Request, res: Response) => {
-    const newUser: User = req.body;
-    console.log(newUser);
-    try {
-        const result = await db
-            .select()
-            .from(Users)
-            .where(
-                and(
-                    eq(Users.email, newUser.email),
-                )
-        );
-        
-        console.log(result)
-        if (result.length > 0) {
-            return res.status(200).json({msg: "user already exists"})
-        }
-
-        await db.insert(Users).values(newUser)
-        return res.status(200).json({msg: "user created ..."});
-    }
-    catch(err) {
-        console.log(err)
-        return res.status(403).json({ msg: "error creating user, try again..." });
-    }
-});
-
-app.post("/auth/login", async (req: Request, res: Response) => {
-    const user = req.body;
-    try {
-        let existingUser: ExistingUser[] | ExistingUser = await db.select().from(Users).where(and(eq(user.email, Users.email))).limit(1)
-        if (!existingUser) {
-            return res.status(403).json({ msg: "user does not exist with this email" });
-        }
-        existingUser = existingUser[0]
-        console.log(existingUser);
-
-        if (existingUser.password === user.password) {
-            const token = jwt.sign({ userId: user.userId, email: user.email }, Deno.env.get("JWT_SECRET"));
-            res.cookie("auth_token", token, {
-                httpOnly: true, // Prevent access via JavaScript
-                sameSite: "none",
-                expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
-                secure: true, 
-            });
-            return res.status(200).json({msg: "login successfull..."})
-        }
-        else {
-            return res.status(403).json({ msg: "invalid password" });
-        }
-    }
-    catch(err) {
-        console.log(err)
-        return res.status(403).json({ msg: 'error with servers' });
-    }
-})
+app.use('/auth',authRoutes)
 
 // app.use(authMiddleware)
 
