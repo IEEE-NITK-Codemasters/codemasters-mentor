@@ -20,7 +20,7 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
             next();
         });
     } else {
-        res.status(401); // Unauthorized
+        res.sendStatus(401); // Unauthorized
     }
 }
 
